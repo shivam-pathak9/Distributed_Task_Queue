@@ -26,10 +26,11 @@ type Task struct {
 	MaxRetries int               `json:"max_retries"`
 	Status     Status            `json:"status"`
 	CreatedAt  time.Time         `json:"created_at"`
+	Priority   int               `json:"priority"` // Priority for task execution
 }
 
 // NewTask creates a new task with a generated ID
-func NewTask(taskType string, payload map[string]string, maxRetries int) *Task {
+func NewTask(taskType string, payload map[string]string, maxRetries int, priority int) *Task {
 	return &Task{
 		ID:         uuid.NewString(),
 		Type:       taskType,
@@ -38,5 +39,6 @@ func NewTask(taskType string, payload map[string]string, maxRetries int) *Task {
 		MaxRetries: maxRetries,
 		Status:     Pending,
 		CreatedAt:  time.Now(),
+		Priority:   priority,
 	}
 }

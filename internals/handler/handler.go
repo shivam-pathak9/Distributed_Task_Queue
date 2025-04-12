@@ -13,6 +13,7 @@ type TaskRequest struct {
 	Type       string            `json:"type"`
 	Payload    map[string]string `json:"payload"`
 	MaxRetries int               `json:"max_retries"`
+	Priority   int               `json:"priority"`
 }
 
 // APIHandler wraps broker so we can use it in routes
@@ -41,10 +42,14 @@ func (h *APIHandler) SubmitTaskHandler(w http.ResponseWriter, r *http.Request) {
 		req.MaxRetries = 0
 	}
 
-	t := task.NewTask(req.Type, req.Payload, req.MaxRetries)
+	if req.Priority <= 0 { // Validate Priority
+		req.Priority = 1 // Default Priority
+	}
+
+	t := task.NewTask(req.Type, req.Payload, req.MaxRetries, req.Priority)
 	log.Printf("[API] Received Task: %+v\n", t)
 
-	h.Broker.Enqueue(t)
+	h.Broker.Enqueue(t, req.Priority)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{

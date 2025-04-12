@@ -5,23 +5,24 @@ import (
 	"sync"
 	"time"
 
+	"Distributed_Task_Queue/internals/broker"
 	"Distributed_Task_Queue/internals/task"
 )
 
 // WorkerPool manages multiple workers to process tasks
 type WorkerPool struct {
-	ID          string
-	NumWorkers  int
-	TaskChannel <-chan *task.Task
-	wg          sync.WaitGroup
+	ID         string
+	NumWorkers int
+	Broker     *broker.Broker
+	wg         sync.WaitGroup
 }
 
 // NewWorkerPool initializes a new worker pool
-func NewWorkerPool(id string, numWorkers int, taskChan <-chan *task.Task) *WorkerPool {
+func NewWorkerPool(id string, numWorkers int, b *broker.Broker) *WorkerPool {
 	return &WorkerPool{
-		ID:          id,
-		NumWorkers:  numWorkers,
-		TaskChannel: taskChan,
+		ID:         id,
+		NumWorkers: numWorkers,
+		Broker:     b,
 	}
 }
 
@@ -45,8 +46,9 @@ func (wp *WorkerPool) worker(workerID int) {
 	defer wp.wg.Done()
 	log.Printf("[Worker-%d] Started", workerID)
 
-	for t := range wp.TaskChannel {
-		log.Printf("[Worker-%d] Processing task: %s", workerID, t.ID)
+	for {
+		t := wp.Broker.Dequeue() // Blocking call now
+		log.Printf("[Worker-%d] Processing task: %s (Priority: %d)", workerID, t.ID, t.Priority)
 		t.Status = task.Running
 
 		err := executeTask(t)
@@ -56,8 +58,8 @@ func (wp *WorkerPool) worker(workerID int) {
 			if t.RetryCount <= t.MaxRetries {
 				log.Printf("[Worker-%d] Retrying task %s (%d/%d)", workerID, t.ID, t.RetryCount, t.MaxRetries)
 				t.Status = task.Retrying
-				time.Sleep(1 * time.Second) // basic retry delay
-				// re-queueing could be handled via broker.Enqueue again (we'll wire this in main)
+				time.Sleep(1 * time.Second)
+				wp.Broker.Enqueue(t, t.Priority) // Re-enqueue with same priority
 			} else {
 				t.Status = task.Failed
 				log.Printf("[Worker-%d] Task %s permanently failed", workerID, t.ID)

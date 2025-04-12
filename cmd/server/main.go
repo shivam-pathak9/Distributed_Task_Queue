@@ -18,7 +18,7 @@ func main() {
 	br := broker.NewBroker(queueSize)
 
 	// Setup worker pool
-	wp := worker.NewWorkerPool("default", numWorkers, br.Dequeue())
+	wp := worker.NewWorkerPool("default", numWorkers, br)
 	wp.Start()
 
 	// Setup API handler
