@@ -59,15 +59,15 @@ The system consists of the following components:
     "priority": 2
 }
 
-Response:
-
+**Response**:
+```json
 {
     "message": "Task enqueued",
     "id": "unique-task-id"
 }
 
 
-Description:
+##Description:
 
 type: The type of task to be processed.
 payload: A map of key-value pairs containing task-specific data.
@@ -75,7 +75,7 @@ max_retries: The maximum number of retries allowed for the task.
 priority: The priority of the task (higher values indicate higher priority).
 
 
-Configuration
+##Configuration
 The system can be configured in the main.go file:
 
 Number of Workers: Set the numWorkers variable to define the number of workers in the pool.
@@ -85,22 +85,22 @@ numWorkers := 5  // Total number of workers
 queueSize := 5   // Maximum number of tasks in the queue
 
 
-=> How It Works
-1. Task Submission:
-    Clients submit tasks via the /task endpoint.
-    The task is validated and enqueued in the broker with its priority.
+##How It Works
+    1. Task Submission:
+        Clients submit tasks via the /task endpoint.
+        The task is validated and enqueued in the broker with its priority.
 
-2. Task Processing:
-    Workers in the pool fetch tasks from the broker based on priority.
-    Each worker processes tasks concurrently.
+    2. Task Processing:
+        Workers in the pool fetch tasks from the broker based on priority.
+        Each worker processes tasks concurrently.
 
-3. Retries:
-    If a task fails, it is retried once before being discarded.
+    3. Retries:
+        If a task fails, it is retried once before being discarded.
 
-4. Logging:
-    Logs are printed to the CLI for task submissions, processing, and errors.
+    4. Logging:
+        Logs are printed to the CLI for task submissions, processing, and errors.
 
-=>Future Enhancements
+##Future Enhancements
     Add persistent storage for tasks using a database.
     Implement advanced retry policies with exponential backoff.
     Add support for distributed worker pools across multiple nodes.
