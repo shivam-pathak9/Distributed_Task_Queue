@@ -58,24 +58,24 @@ The system consists of the following components:
     "max_retries": 3,
     "priority": 2
 }
-
-**Response**:
+```
+**Request Body**:
 ```json
 {
     "message": "Task enqueued",
     "id": "unique-task-id"
 }
-
-
-##Description:
+```
+---
+## Description:
 
 type: The type of task to be processed.
 payload: A map of key-value pairs containing task-specific data.
 max_retries: The maximum number of retries allowed for the task.
 priority: The priority of the task (higher values indicate higher priority).
 
-
-##Configuration
+---
+## Configuration
 The system can be configured in the main.go file:
 
 Number of Workers: Set the numWorkers variable to define the number of workers in the pool.
@@ -85,7 +85,7 @@ numWorkers := 5  // Total number of workers
 queueSize := 5   // Maximum number of tasks in the queue
 
 
-##How It Works
+## How It Works
     1. Task Submission:
         Clients submit tasks via the /task endpoint.
         The task is validated and enqueued in the broker with its priority.
